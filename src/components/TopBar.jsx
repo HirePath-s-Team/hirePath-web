@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Search, Bell, Monitor, ChevronDown, LogOut, User, Settings, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,9 +35,10 @@ export function TopBar() {
         navigate(`/questions?q=${encodeURIComponent(trimmed)}`);
     };
 
-    return (<header className="h-14 flex items-center justify-between border-b border-border px-6 bg-card/50 backdrop-blur-sm">
-      <div className="flex items-center gap-4 flex-1">
-        <div className="relative max-w-md flex-1">
+    return (<header className="sticky top-0 z-40 flex min-h-14 items-center justify-between gap-3 border-b border-border bg-card/70 px-4 py-2 backdrop-blur-sm md:px-6">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <SidebarTrigger className="md:hidden" />
+        <div className="relative w-full max-w-md min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
           <Input placeholder="Search questions, topics..." value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -46,10 +48,10 @@ export function TopBar() {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-2 md:gap-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+            <button className="hidden h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex">
               <Monitor className="h-4 w-4"/>
             </button>
           </DropdownMenuTrigger>

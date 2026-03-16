@@ -5,7 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Index from "./pages/Index";
-import { PlaceholderPage } from "./pages/PlaceholderPage";
+import Analytics from "./pages/Analytics";
+import Bookmarks from "./pages/Bookmarks";
 import Login from "./pages/Login";
 import Questions from "./pages/Questions";
 import Learn from "./pages/Learn";
@@ -33,8 +34,8 @@ const App = () => (<QueryClientProvider client={queryClient}>
           <Route path="/companies" element={<Companies />}/>
           <Route path="/blog" element={<Blog />}/>
           <Route path="/blog/:slug" element={<BlogDetail />}/>
-          <Route path="/analytics" element={<PlaceholderPage title="Analytics" description="Personal analytics coming soon."/>}/>
-          <Route path="/bookmarks" element={<PlaceholderPage title="Bookmarks" description="Saved questions coming soon."/>}/>
+          <Route path="/analytics" element={<Analytics />}/>
+          <Route path="/bookmarks" element={<Bookmarks />}/>
           <Route path="/profile" element={<Profile />}/>
           <Route path="/settings" element={<Settings />}/>
           <Route path="/login" element={<Login />}/>

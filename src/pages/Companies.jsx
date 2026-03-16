@@ -35,8 +35,8 @@ const Companies = () => {
         </div>
 
         {/* Company header card */}
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-          <div className="flex items-start gap-5">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm md:p-6">
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:gap-5">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-3xl">
               {selected.logo}
             </div>
@@ -47,7 +47,7 @@ const Companies = () => {
                   {selected.industry}
                 </span>
               </div>
-              <div className="flex items-center gap-6 mt-3">
+              <div className="flex flex-wrap items-center gap-4 mt-3">
                 <div className="flex items-center gap-2">
                   <Hash className="h-4 w-4 text-muted-foreground"/>
                   <span className="text-sm text-foreground font-semibold">{selected.questionsCount}</span>
@@ -103,7 +103,7 @@ const Companies = () => {
               <div className="bg-[hsl(var(--difficulty-hard))]" style={{ width: `${(selected.difficultyBreakdown.hard / total) * 100}%` }}/>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               {["easy", "medium", "hard"].map((d) => (<div key={d} className="text-center">
                   <div className="text-2xl font-bold text-foreground">{selected.difficultyBreakdown[d]}</div>
                   <DifficultyBadge difficulty={d} className="mt-1"/>
@@ -117,8 +117,8 @@ const Companies = () => {
 
         {/* Recent Questions Table */}
         <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-          <div className="p-6 pb-0">
-            <div className="flex items-center justify-between mb-1">
+          <div className="p-5 pb-0 md:p-6 md:pb-0">
+            <div className="flex flex-col items-start justify-between gap-2 mb-1 sm:flex-row sm:items-center">
               <h3 className="text-base font-semibold text-foreground">Frequently Asked Questions</h3>
               <button className="flex items-center gap-1 text-xs text-primary font-medium hover:underline">
                 View all <ArrowUpRight className="h-3 w-3"/>
@@ -126,29 +126,29 @@ const Companies = () => {
             </div>
             <p className="text-xs text-muted-foreground">Questions commonly asked at {selected.name}</p>
           </div>
-          <div className="mt-4">
-            <table className="w-full text-sm">
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
               <thead>
                 <tr className="border-b border-border text-left">
-                  <th className="px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Problem</th>
-                  <th className="px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Topic</th>
-                  <th className="px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Difficulty</th>
-                  <th className="px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Frequency</th>
-                  <th className="px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Last Asked</th>
+                  <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider md:px-6">Problem</th>
+                  <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider md:px-6">Topic</th>
+                  <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider md:px-6">Difficulty</th>
+                  <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider md:px-6">Frequency</th>
+                  <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider md:px-6">Last Asked</th>
                 </tr>
               </thead>
               <tbody>
                 {selected.recentQuestions.map((q) => (<tr key={q.id} className="border-b border-border/50 last:border-0 hover:bg-muted/5 transition-colors">
-                    <td className="px-6 py-3.5 font-medium text-foreground">{q.title}</td>
-                    <td className="px-6 py-3.5"><TopicTag topic={q.topic}/></td>
-                    <td className="px-6 py-3.5"><DifficultyBadge difficulty={q.difficulty}/></td>
-                    <td className="px-6 py-3.5">
+                    <td className="px-4 py-3.5 font-medium text-foreground md:px-6">{q.title}</td>
+                    <td className="px-4 py-3.5 md:px-6"><TopicTag topic={q.topic}/></td>
+                    <td className="px-4 py-3.5 md:px-6"><DifficultyBadge difficulty={q.difficulty}/></td>
+                    <td className="px-4 py-3.5 md:px-6">
                       <span className={`text-xs font-semibold capitalize ${frequencyColor[q.frequency]}`}>
                         {q.frequency === "high" ? "?? " : q.frequency === "medium" ? "?? " : "?? "}
                         {q.frequency}
                       </span>
                     </td>
-                    <td className="px-6 py-3.5">
+                    <td className="px-4 py-3.5 md:px-6">
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3"/>
                         {q.lastAsked}
