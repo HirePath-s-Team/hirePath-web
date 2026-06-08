@@ -8,10 +8,39 @@ const Login = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const handleLogin = (e) => {
+    const [error, setError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
+    const handleLogin = async (e) => {
         e.preventDefault();
-        // Mock login ? navigate to dashboard
-        navigate("/dashboard");
+        if (isSubmitting) {
+            return;
+        }
+        setError("");
+        setIsSubmitting(true);
+        try {
+            const response = await fetch(`${apiUrl}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ email, password }),
+            });
+            if (!response.ok) {
+                const payload = await response.json().catch(() => ({}));
+                const message = payload?.error === "invalid_credentials"
+                    ? "Invalid email or password."
+                    : "Login failed. Please try again.";
+                setError(message);
+                return;
+            }
+            navigate("/dashboard");
+        }
+        catch (err) {
+            setError("Network error. Please try again.");
+        }
+        finally {
+            setIsSubmitting(false);
+        }
     };
     return (<div className="min-h-screen flex bg-background">
       {/* Left panel ? branding */}
@@ -91,9 +120,12 @@ const Login = () => {
 
           {/* Email/password form */}
           <form onSubmit={handleLogin} className="space-y-4">
+            {error && (<div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {error}
+              </div>)}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm text-muted-foreground">Email</Label>
-              <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-11 bg-card border-border"/>
+              <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-11 bg-card border-border" required/>
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -102,10 +134,10 @@ const Login = () => {
                   Forgot password?
                 </button>
               </div>
-              <Input id="password" type="password" placeholder="????????" value={password} onChange={(e) => setPassword(e.target.value)} className="h-11 bg-card border-border"/>
+              <Input id="password" type="password" placeholder="????????" value={password} onChange={(e) => setPassword(e.target.value)} className="h-11 bg-card border-border" required/>
             </div>
-            <Button type="submit" className="w-full h-11 bg-primary text-primary-foreground hover:bg-primary/90">
-              Sign in
+            <Button type="submit" className="w-full h-11 bg-primary text-primary-foreground hover:bg-primary/90" disabled={isSubmitting}>
+              {isSubmitting ? "Signing in..." : "Sign in"}
             </Button>
           </form>
 

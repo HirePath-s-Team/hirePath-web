@@ -1,0 +1,295 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Difficulty {
+  easy
+  medium
+  hard
+}
+
+enum AttemptStatus {
+  solved
+  attempted
+  review
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  name         String?
+  passwordHash String?
+  createdAt    DateTime      @default(now())
+
+  profile       UserProfile?
+  roadmaps      UserRoadmap[]
+  attempts      UserQuestionAttempt[]
+  topicMastery  UserTopicMastery[]
+  streak        UserStreak?
+  sessions      UserSession[]
+  bookmarks     Bookmark[]
+}
+
+model Domain {
+  id        String      @id @default(uuid())
+  slug      String      @unique
+  name      String
+
+  roadmaps   Roadmap[]
+  topics     Topic[]
+  questions  Question[]
+  modules    LearningModule[]
+  companies  CompanyTopicStat[]
+  profiles   UserProfile[]
+}
+
+model Company {
+  id          String                   @id @default(uuid())
+  name        String                   @unique
+  industry    String?
+  logoUrl     String?
+
+  questionLinks   QuestionCompany[]
+  topicStats      CompanyTopicStat[]
+  recentQuestions CompanyRecentQuestion[]
+}
+
+model UserProfile {
+  userId              String   @id
+  currentDomainId     String?
+  weeklyGoalMinutes   Int?
+  targetTimelineWeeks Int?
+  updatedAt           DateTime @default(now())
+
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentDomain Domain? @relation(fields: [currentDomainId], references: [id])
+}
+
+model Roadmap {
+  id            String        @id @default(uuid())
+  domainId      String?
+  title         String
+  overview      String?
+  durationWeeks Int?
+  createdAt     DateTime      @default(now())
+
+  domain      Domain?       @relation(fields: [domainId], references: [id])
+  weeks       RoadmapWeek[]
+  users       UserRoadmap[]
+}
+
+model RoadmapWeek {
+  id        String   @id @default(uuid())
+  roadmapId String
+  weekIndex Int
+  title     String?
+  focus     String?
+
+  roadmap Roadmap        @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  items   RoadmapWeekItem[]
+}
+
+model RoadmapWeekItem {
+  id            String   @id @default(uuid())
+  roadmapWeekId String
+  item          String
+
+  roadmapWeek RoadmapWeek @relation(fields: [roadmapWeekId], references: [id], onDelete: Cascade)
+}
+
+model UserRoadmap {
+  userId          String
+  roadmapId       String
+  progressPercent Int @default(0)
+  startedAt       DateTime?
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roadmap Roadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roadmapId])
+}
+
+model Topic {
+  id       String   @id @default(uuid())
+  domainId String?
+  name     String
+
+  domain       Domain?   @relation(fields: [domainId], references: [id])
+  subtopics    Subtopic[]
+  questions    Question[]
+  mastery      UserTopicMastery[]
+  companyStats CompanyTopicStat[]
+  modules      LearningModule[]
+}
+
+model Subtopic {
+  id      String @id @default(uuid())
+  topicId String
+  name    String
+
+  topic     Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  questions Question[]
+}
+
+model Question {
+  id                String      @id @default(uuid())
+  domainId          String?
+  title             String
+  difficulty        Difficulty
+  topicId           String?
+  subtopicId        String?
+  description       String?
+  solution          String?
+  preparationAdvice String?
+  createdAt         DateTime    @default(now())
+
+  domain    Domain?   @relation(fields: [domainId], references: [id])
+  topic     Topic?    @relation(fields: [topicId], references: [id])
+  subtopic  Subtopic? @relation(fields: [subtopicId], references: [id])
+
+  hints      QuestionHint[]
+  variants   QuestionVariant[]
+  companies  QuestionCompany[]
+  attempts   UserQuestionAttempt[]
+  bookmarks  Bookmark[]
+  recentAt   CompanyRecentQuestion[]
+}
+
+model QuestionHint {
+  id         String @id @default(uuid())
+  questionId String
+  hint       String
+  hintIndex  Int
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model QuestionVariant {
+  id         String @id @default(uuid())
+  questionId String
+  variant    String
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model QuestionCompany {
+  id         String  @id @default(uuid())
+  questionId String
+  companyId  String
+  role       String?
+  round      String?
+  year       Int?
+  frequency  Int?
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  company  Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, companyId, role, round, year])
+}
+
+model CompanyTopicStat {
+  id            String      @id @default(uuid())
+  companyId     String
+  domainId      String?
+  topicId       String?
+  questionCount Int?
+  avgDifficulty Difficulty?
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  domain  Domain? @relation(fields: [domainId], references: [id])
+  topic   Topic?  @relation(fields: [topicId], references: [id])
+}
+
+model CompanyRecentQuestion {
+  id             String @id @default(uuid())
+  companyId      String
+  questionId     String
+  lastAskedMonth String?
+
+  company  Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id])
+}
+
+model LearningModule {
+  id       String @id @default(uuid())
+  domainId String?
+  topicId  String?
+  title    String
+  content  String?
+
+  domain Domain? @relation(fields: [domainId], references: [id])
+  topic  Topic?  @relation(fields: [topicId], references: [id])
+}
+
+model UserQuestionAttempt {
+  id               String        @id @default(uuid())
+  userId           String
+  questionId       String
+  status           AttemptStatus
+  timeSpentMinutes Int?
+  confidence       Int?
+  createdAt        DateTime      @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id])
+}
+
+model UserTopicMastery {
+  userId         String
+  topicId        String
+  accuracy       Int?
+  recentAttempts Int?
+  targetAccuracy Int?
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@id([userId, topicId])
+}
+
+model UserStreak {
+  userId        String   @id
+  currentStreak Int?
+  longestStreak Int?
+  updatedAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserSession {
+  id              String   @id @default(uuid())
+  userId          String
+  startedAt       DateTime @default(now())
+  durationMinutes Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Bookmark {
+  userId     String
+  questionId String
+  note       String?
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@id([userId, questionId])
+}
+
+model BlogPost {
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  title     String
+  summary   String?
+  content   String?
+  createdAt DateTime @default(now())
+}

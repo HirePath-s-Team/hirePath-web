@@ -16,6 +16,7 @@ export function TopBar() {
     const [searchParams] = useSearchParams();
     const [query, setQuery] = useState("");
     const [view, setView] = useState("Comfort");
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
     useEffect(() => {
         if (location.pathname === "/questions") {
@@ -33,6 +34,18 @@ export function TopBar() {
             return;
         }
         navigate(`/questions?q=${encodeURIComponent(trimmed)}`);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await fetch(`${apiUrl}/auth/logout`, {
+                method: "POST",
+                credentials: "include",
+            });
+        }
+        finally {
+            navigate("/login");
+        }
     };
 
     return (<header className="sticky top-0 z-40 flex min-h-14 items-center justify-between gap-3 border-b border-border bg-card/70 px-4 py-2 backdrop-blur-sm md:px-6">
@@ -100,7 +113,7 @@ export function TopBar() {
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate("/login")}>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4"/>
               Sign out
             </DropdownMenuItem>
